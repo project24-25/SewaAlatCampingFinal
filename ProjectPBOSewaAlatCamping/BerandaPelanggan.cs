@@ -1,4 +1,5 @@
-﻿using ProjectPBOSewaAlatCamping.dataAccess;
+﻿using Npgsql;
+using ProjectPBOSewaAlatCamping.dataAccess;
 using ProjectPBOSewaAlatCamping.Models;
 using System;
 using System.Collections.Generic;
@@ -39,12 +40,13 @@ namespace ProjectPBOSewaAlatCamping
         private void InitializeUIComponents()
         {
             dbAlat = new DatabaseAlat();
+
             this.Text = "Beranda Pelanggan - SEWA ALAT CAMPING";
             this.Size = new Size(1280, 720);
             this.StartPosition = FormStartPosition.CenterScreen;
             this.BackColor = Color.White;
 
-            // Judul
+
             Label labelJudul = new Label
             {
                 Text = "Daftar Alat Camping",
@@ -54,7 +56,7 @@ namespace ProjectPBOSewaAlatCamping
                 Location = new Point(30, 20)
             };
 
-            // Nama Pelanggan
+
             Label labelNama = new Label
             {
                 Text = "Nama Pelanggan:",
@@ -70,7 +72,7 @@ namespace ProjectPBOSewaAlatCamping
                 Width = 300
             };
 
-            // Panel daftar alat
+
             flowLayoutPanelUtama = new FlowLayoutPanel
             {
                 AutoScroll = true,
@@ -81,54 +83,35 @@ namespace ProjectPBOSewaAlatCamping
                 FlowDirection = FlowDirection.LeftToRight
             };
 
-            // Panel transaksi (kanan)
-            Panel panelTransaksi = new Panel
-            {
-                Name = "panelTransaksi",
-                BorderStyle = BorderStyle.FixedSingle,
-                BackColor = Color.White,
-                Anchor = AnchorStyles.Top | AnchorStyles.Right | AnchorStyles.Bottom,
-                AutoScroll = true
-            };
 
-            // ListBox transaksi
+
             listBoxTransaksi = new ListBox
             {
                 Font = new Font("Arial", 10),
                 BorderStyle = BorderStyle.FixedSingle,
-                SelectionMode = SelectionMode.One,
-                Dock = DockStyle.Fill
+                SelectionMode = SelectionMode.One
             };
             listBoxTransaksi.DoubleClick += (s, e) => HapusItemTransaksi();
 
-            // Label total
+
+
             labelTotal = new Label
             {
                 Text = "Total: Rp 0",
                 AutoSize = true,
                 Font = new Font("Arial", 14, FontStyle.Bold),
-                ForeColor = Color.DarkBlue,
-                Dock = DockStyle.Left,
-                Padding = new Padding(10, 5, 5, 5)
+                ForeColor = Color.DarkBlue
             };
 
-            // Panel tombol bawah
-            FlowLayoutPanel tombolPanel = new FlowLayoutPanel
-            {
-                FlowDirection = FlowDirection.LeftToRight,
-                Dock = DockStyle.Fill,
-                Padding = new Padding(10),
-                WrapContents = false
-            };
+
 
             Button buttonSelesai = new Button
             {
                 Name = "buttonSelesai",
-                Text = "Selesai",
+                Text = "Selesai Transaksi",
                 Font = new Font("Arial", 10),
                 BackColor = Color.LightGreen,
-                FlatStyle = FlatStyle.Flat,
-                Width = 75
+                FlatStyle = FlatStyle.Flat
             };
             buttonSelesai.Click += buttonSelesai_Click;
 
@@ -138,61 +121,44 @@ namespace ProjectPBOSewaAlatCamping
                 Text = "Refresh",
                 Font = new Font("Arial", 10),
                 BackColor = Color.LightBlue,
-                FlatStyle = FlatStyle.Flat,
-                Width = 75
+                FlatStyle = FlatStyle.Flat
             };
             buttonRefresh.Click += (s, e) => LoadEquipment();
 
             Button buttonHapus = new Button
             {
                 Name = "buttonHapus",
-                Text = "Hapus",
+                Text = "Hapus Item",
                 Font = new Font("Arial", 10),
-                BackColor = Color.LightSalmon,
-                FlatStyle = FlatStyle.Flat,
-                Width = 75
+                BackColor = Color.LightCoral,
+                FlatStyle = FlatStyle.Flat
             };
             buttonHapus.Click += (s, e) => HapusItemTransaksi();
 
-            Button Logout = new Button
+            Button buttonLogout = new Button
             {
                 Name = "buttonLogout",
                 Text = "Logout",
-                Font = new Font("Arial", 10),
+                Font = new Font("Arial", 9),
+                Location = new Point(10, 625),
                 BackColor = Color.LightCoral,
-                FlatStyle = FlatStyle.Flat,
-                Width = 75
+                FlatStyle = FlatStyle.Flat
             };
-            Logout.Click += (s, e) => Application.Exit();
+            buttonLogout.Click += (s, e) => Application.Exit();
 
-            tombolPanel.Controls.Add(buttonSelesai);
-            tombolPanel.Controls.Add(buttonRefresh);
-            tombolPanel.Controls.Add(buttonHapus);
-            tombolPanel.Controls.Add(Logout);
-
-            // Layout panelTransaksi (gunakan TableLayoutPanel)
-            TableLayoutPanel transaksiLayout = new TableLayoutPanel
-            {
-                RowCount = 3,
-                ColumnCount = 1,
-                Dock = DockStyle.Fill
-            };
-            transaksiLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 70F)); // ListBox
-            transaksiLayout.RowStyles.Add(new RowStyle(SizeType.AutoSize));     // Label
-            transaksiLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 60F));// Tombol
-
-            transaksiLayout.Controls.Add(listBoxTransaksi, 0, 0);
-            transaksiLayout.Controls.Add(labelTotal, 0, 1);
-            transaksiLayout.Controls.Add(tombolPanel, 0, 2);
-
-            panelTransaksi.Controls.Add(transaksiLayout);
-
-            // Tambahkan semua komponen ke Form
             this.Controls.Add(labelJudul);
             this.Controls.Add(labelNama);
             this.Controls.Add(textBoxNama);
             this.Controls.Add(flowLayoutPanelUtama);
-            this.Controls.Add(panelTransaksi);
+            this.Controls.Add(listBoxTransaksi);
+            this.Controls.Add(labelTotal);
+            this.Controls.Add(buttonSelesai);
+            this.Controls.Add(buttonRefresh);
+            this.Controls.Add(buttonHapus);
+            this.Controls.Add(buttonLogout);
+
+
+
 
             ResizeLayout(); // Untuk atur ukuran & posisi flowLayout dan panelTransaksi
         }
@@ -200,19 +166,27 @@ namespace ProjectPBOSewaAlatCamping
         private void ResizeLayout()
         {
             int margin = 30;
-            int sidePanelWidth = 350;
+            int sidePanelWidth = 360;
             int height = this.ClientSize.Height;
-            int width = this.ClientSize.Width;
+            int width = this.ClientSize.Width;// Lebar panel transaksi di sebelah kanan
 
             flowLayoutPanelUtama.Location = new Point(margin, 120);
             flowLayoutPanelUtama.Size = new Size(width - sidePanelWidth - 3 * margin, height - 150);
 
-            Panel panelTransaksi = this.Controls.Find("panelTransaksi", true).FirstOrDefault() as Panel;
-            if (panelTransaksi != null)
-            {
-                panelTransaksi.Location = new Point(width - sidePanelWidth - margin, 120);
-                panelTransaksi.Size = new Size(sidePanelWidth, height - 150);
-            }
+            listBoxTransaksi.Location = new Point(width - sidePanelWidth, 120);
+            listBoxTransaksi.Size = new Size(sidePanelWidth - margin, height - 250);
+
+            labelTotal.Location = new Point(width - sidePanelWidth, height - 120);
+
+            Control buttonSelesai = this.Controls["buttonSelesai"];
+            Control buttonRefresh = this.Controls["buttonRefresh"];
+            Control buttonHapus = this.Controls["buttonHapus"];
+            Control btnLogout = this.Controls["buttonLogout"];
+
+            buttonSelesai.Location = new Point(width - sidePanelWidth, height - 90);
+            buttonRefresh.Location = new Point(width - sidePanelWidth + 110, height - 90);
+            buttonHapus.Location = new Point(width - sidePanelWidth + 220, height - 90);
+            btnLogout.Location = new Point(width - sidePanelWidth, height - 50);
         }
 
         private void LoadEquipment()
