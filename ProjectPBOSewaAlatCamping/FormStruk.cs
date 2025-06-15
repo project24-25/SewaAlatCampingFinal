@@ -58,7 +58,7 @@ namespace ProjectPBOSewaAlatCamping
                 decimal total = 0;
                 foreach (DataRow row in detailTransaksi.Rows)
                 {
-                    string nama = row["Nama_Alat"].ToString();
+                    string nama = row["Nama Alat"].ToString();
                     int qty = Convert.ToInt32(row["Jumlah"]);
                     int hari = Convert.ToInt32(row["Durasi (Hari)"]);
                     decimal harga = Convert.ToDecimal(row["Total_Harga"]);
