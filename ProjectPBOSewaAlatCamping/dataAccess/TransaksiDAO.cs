@@ -30,7 +30,7 @@ namespace ProjectPBOSewaAlatCamping.dataAccess
         a.nama || ' x' || dt.jumlah || ' (' || dt.durasisewa || ' hari)', 
         ', '
     ) AS ""Detail Alat"",
-    SUM(dt.jumlah * dt.durasisewa * dt.harga) AS ""Total Harga""
+    SUM(dt.jumlah * dt.durasisewa * dt.harga_satuan) AS ""Total Harga""
 FROM transaksi t
 JOIN detail_transaksi dt ON t.id = dt.id_transaksi
 JOIN alat a ON a.id = dt.id_alat
