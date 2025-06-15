@@ -88,19 +88,15 @@ ORDER BY t.tanggal DESC;
             {
                 conn.Open();
                 string query = @"
-                   SELECT 
-    t.id AS ""ID Transaksi"",
-    t.tanggal AS ""Tanggal"",
-    t.nama_pelanggan AS ""Nama Pelanggan"",
-    t.metodepembayaran AS ""Metode Pembayaran"",
-    t.status AS ""Status"",
-    t.bukti_transfer AS ""BuktiPembayaran"",
-    STRING_AGG(a.nama, ', ') AS ""Daftar Alat""
-    FROM transaksi t
-    JOIN detail_transaksi dt ON t.id = dt.id_transaksi
-    JOIN alat a ON a.id = dt.id_alat
-    GROUP BY t.id
-    ORDER BY t.tanggal DESC;
+                          SELECT 
+    a.nama AS ""Nama Alat"",
+    dt.jumlah AS ""Jumlah"",
+    dt.durasisewa AS ""Durasi (Hari)"",
+    dt.harga_satuan AS ""Harga Satuan"",
+    (dt.jumlah * dt.durasisewa * dt.harga_satuan) AS ""Total_Harga""
+FROM detail_transaksi dt
+JOIN alat a ON a.id = dt.id_alat
+WHERE dt.id_transaksi = @idTransaksi
                 ";
 
                 using (var cmd = new NpgsqlCommand(query, conn))
