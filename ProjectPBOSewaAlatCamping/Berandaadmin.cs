@@ -10,14 +10,14 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Drawing;
 using System.IO;
-using ProjectPBOSewaAlatCamping.dataAccess; // Pastikan namespace ini sesuai dengan struktur proyek Anda
+using ProjectPBOSewaAlatCamping.dataAccess; 
 
 namespace ProjectPBOSewaAlatCamping
 {
     public partial class Berandaadmin : Form
     {
 
-        private DatabaseAlat dbAlat = new DatabaseAlat(); // Inisialisasi objek database
+        private DatabaseAlat dbAlat = new DatabaseAlat();
         private int stokSaatIni;
         private int idAlat;
         private FlowLayoutPanel flowLayoutPanelAlat;
@@ -36,29 +36,13 @@ namespace ProjectPBOSewaAlatCamping
         {
             flowLayoutPanelAlat = new FlowLayoutPanel
             {
-                Location = new Point(50, 100), // Sesuaikan dengan area putih di UI
-                Size = new Size(980, 400), // Sesuaikan ukuran dengan panel tengah
+                Location = new Point(50, 100),
+                Size = new Size(980, 400),
                 AutoScroll = true
             };
 
-            flowLayoutPanel2.Controls.Add(flowLayoutPanelAlat); // Masukkan ke dalam panel utama UI
+            flowLayoutPanel2.Controls.Add(flowLayoutPanelAlat);
         }
-
-        private void Berandaadmin_Load(object sender, EventArgs e)
-        {
-            MessageBox.Show("Form Berandaadmin berhasil dimuat!");
-            LoadAlatDariDatabase(); // Panggil RefreshStok untuk menampilkan stok awal
-        }
-
-        //private Image ConvertBytesToImage(byte[] imageBytes)
-        //{
-        //    if (imageBytes == null || imageBytes.Length == 0) return null;
-
-        //    using (MemoryStream ms = new MemoryStream(imageBytes))
-        //    {
-        //        return Image.FromStream(ms);
-        //    }
-        //}
 
 
         private void RefreshStok()
@@ -69,7 +53,7 @@ namespace ProjectPBOSewaAlatCamping
         private void button5_Click(object sender, EventArgs e)
         {
             Form1 form1 = new Form1();
-            form1.Show(); // Tampilkan form login
+            form1.Show();
         }
 
         private void button3_Click(object sender, EventArgs e)
@@ -86,7 +70,7 @@ namespace ProjectPBOSewaAlatCamping
                 {
                     stokSaatIni++;
                     RefreshStok();
-                    LoadAlatDariDatabase(); // Refresh data grid view setelah penambahan stok
+                    LoadAlatDariDatabase();
                 }
 
 
@@ -98,7 +82,7 @@ namespace ProjectPBOSewaAlatCamping
             {
                 stokSaatIni--;
                 RefreshStok();
-                LoadAlatDariDatabase(); // Refresh DataGridView setelah perubahan stok
+                LoadAlatDariDatabase();
             }
             else
             {
@@ -118,7 +102,7 @@ namespace ProjectPBOSewaAlatCamping
         {
             FormTambahAlat formTambahAlat = new FormTambahAlat();
             formTambahAlat.FormClosed += (s, args) => LoadAlatDariDatabase();
-            formTambahAlat.Show(); // Refresh data setelah form ditutup
+            formTambahAlat.Show();
         }
 
 
@@ -137,7 +121,7 @@ namespace ProjectPBOSewaAlatCamping
                     return;
                 }
 
-                // Bersihkan tampilan sebelumnya tanpa menghapus UI utama
+
                 flowLayoutPanelAlat.Controls.Clear();
 
                 foreach (DataRow row in dataAlat.Rows)
@@ -191,7 +175,7 @@ namespace ProjectPBOSewaAlatCamping
                     flowLayoutPanelAlat.Controls.Add(panelAlat);
                 }
 
-                // Pastikan tampilan alat tetap ada dalam panel UI tanpa menghilangkan elemen lain
+
                 flowLayoutPanelAlat.Visible = true;
 
                 MessageBox.Show("Jumlah alat yang berhasil dimuat: " + flowLayoutPanelAlat.Controls.Count);
@@ -202,15 +186,15 @@ namespace ProjectPBOSewaAlatCamping
             }
         }
 
-        // Metode untuk mengonversi byte array ke gambar
+
         private Image ConvertBytesToImage(byte[] imageBytes)
         {
             try
             {
-                // Jika gambar tidak ada dalam database, gunakan gambar default
+
                 if (imageBytes == null || imageBytes.Length == 0)
                 {
-                    return GetDefaultImage(); // Fallback jika resource tidak tersedia
+                    return GetDefaultImage();
                 }
 
                 using MemoryStream ms = new MemoryStream(imageBytes);
@@ -218,7 +202,7 @@ namespace ProjectPBOSewaAlatCamping
             }
             catch
             {
-                return GetDefaultImage(); // Menggunakan gambar default jika terjadi error
+                return GetDefaultImage();
             }
         }
 
@@ -226,11 +210,11 @@ namespace ProjectPBOSewaAlatCamping
         {
             try
             {
-                return Properties.Resources.default_image; // Cek apakah gambar ada di resource
+                return Properties.Resources.default_image;
             }
             catch
             {
-                return CreatePlaceholderImage(); // Jika tidak ada, buat gambar default secara programatik
+                return CreatePlaceholderImage();
             }
         }
 
@@ -249,14 +233,10 @@ namespace ProjectPBOSewaAlatCamping
             return bmp;
         }
 
-
-
-
-
         private void buttonUpdateProduk_Click(object sender, EventArgs e)
         {
             FormUpdate formUpdate = new FormUpdate(idAlat);
-            formUpdate.FormClosed += (s, args) => LoadAlatDariDatabase(); // Refresh setelah update dilakukan
+            formUpdate.FormClosed += (s, args) => LoadAlatDariDatabase();
             formUpdate.ShowDialog();
 
         }
@@ -269,32 +249,31 @@ namespace ProjectPBOSewaAlatCamping
 
         }
 
-        private void flowLayoutPanel1_Paint(object sender, PaintEventArgs e)
-        {
-
-        }
-
-        private void pictureBox15_Click(object sender, EventArgs e)
-        {
-
-        }
 
         private void button4_Click(object sender, EventArgs e)
         {
-            var lihatDaftarSewa = new LihatDaftarSewa();
             this.Hide();
-            lihatDaftarSewa.ShowDialog(); // tunggu sampai ditutup
+            using (var lihatDaftarSewa = new LihatDaftarSewa())
+            {
+                lihatDaftarSewa.ShowDialog();
+            }
             this.Show();
 
-            // Pastikan tombol kembali ke depan
+
         }
 
-                 
+
 
         private void buttonVerifikasiPembayaran_Click_1(object sender, EventArgs e)
         {
             VerivfikasiPembayaran formVerifikasi = new VerivfikasiPembayaran();
             formVerifikasi.ShowDialog();
+        }
+
+        private void buttonLihattransaksi_Click(object sender, EventArgs e)
+        {
+            AdminLihatTransaksi adminLihatTransaksi = new AdminLihatTransaksi();
+            adminLihatTransaksi.ShowDialog();
         }
     }
 }

@@ -40,7 +40,7 @@ namespace ProjectPBOSewaAlatCamping
             this.Controls.Add(strukBox);
             this.Controls.Add(btnClose);
 
-            // Ambil data dari DAO
+            
             TransaksiDAO dao = new TransaksiDAO();
             DataTable header = dao.AmbilHeaderTransaksi(idTransaksi);
             DataTable detailTransaksi = dao.AmbilDetailTransaksi(idTransaksi);

@@ -22,11 +22,105 @@ namespace ProjectPBOSewaAlatCamping
 
         public FormUpdate(int id)
         {
-            InitializeComponent();
-            _currentId = id; // Memastikan ID alat tersimpan
-            fotobyteLama = Array.Empty<byte>(); // Inisialisasi foto lama
+           InitializeComponent();
+        _currentId = id;
+        fotobyteLama = Array.Empty<byte>();
+
+   
+        comboBoxAlat.DropDownStyle = ComboBoxStyle.DropDownList;
+        textBoxnamaup.KeyPress += textBoxnamaup_KeyPress;
+        textBoxhargaUp.KeyPress += textBoxhargaUp_KeyPress;
+        textBoxStock.KeyPress += textBoxStock_KeyPress;
+
             LoadComboBoxAlat();
             LoadDataAlat(id);
+        }
+
+
+        private void textBoxnamaup_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (!char.IsLetterOrDigit(e.KeyChar) && !char.IsWhiteSpace(e.KeyChar) && !char.IsControl(e.KeyChar))
+            {
+                e.Handled = true;
+                MessageBox.Show("Nama hanya boleh berisi huruf, angka, dan spasi!", "Input Tidak Valid", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+        }
+
+        private void textBoxhargaUp_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            TextBox txt = sender as TextBox;
+
+            if (char.IsControl(e.KeyChar))
+            {
+                e.Handled = false;
+            }
+            else if (char.IsDigit(e.KeyChar))
+            {
+                e.Handled = false;
+            }
+            else if (e.KeyChar == '.')
+            {
+                
+                if (txt.Text.Contains(".") || txt.SelectionStart == 0)
+                {
+                    e.Handled = true;
+                    MessageBox.Show("Titik hanya boleh satu dan tidak boleh di awal!", "Input Tidak Valid", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+                else
+                {
+                    e.Handled = false;
+                }
+            }
+            else if (e.KeyChar == '-')
+            {
+                
+                if (txt.SelectionStart != 0 || txt.Text.Contains("-"))
+                {
+                    e.Handled = true;
+                    MessageBox.Show("Tanda minus hanya boleh di awal dan hanya satu!", "Input Tidak Valid", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+                else
+                {
+                    e.Handled = false;
+                }
+            }
+            else
+            {
+                e.Handled = true;
+                MessageBox.Show("Harga hanya boleh angka, titik, atau tanda minus!", "Input Tidak Valid", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+        }
+
+
+        private void textBoxStock_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            TextBox txt = sender as TextBox;
+
+            if (char.IsControl(e.KeyChar))
+            {
+                e.Handled = false;
+            }
+            else if (char.IsDigit(e.KeyChar))
+            {
+                e.Handled = false;
+            }
+            else if (e.KeyChar == '-')
+            {
+                if (txt.SelectionStart != 0 || txt.Text.Contains("-"))
+                {
+                    e.Handled = true;
+                    MessageBox.Show("Tanda minus hanya boleh di awal dan hanya satu!", "Input Tidak Valid", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+                else
+                {
+                    e.Handled = false;
+                }
+            }
+            else
+            {
+                e.Handled = true;
+                MessageBox.Show("Stok hanya boleh angka dan tanda minus!", "Input Tidak Valid", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
         }
 
         private void LoadComboBoxAlat()
@@ -60,11 +154,11 @@ namespace ProjectPBOSewaAlatCamping
 
                 if (id <= 0)
                 {
-                    MessageBox.Show("ID alat tidak valid.", "Kesalahan", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("ID alat valid.", "", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return;
                 }
 
-                AlatCamping? alat = dbAlat.AmbilAlatById(id); // Correct type based on the provided signature
+                AlatCamping? alat = dbAlat.AmbilAlatById(id); 
 
                 if (alat == null)
                 {
@@ -73,7 +167,6 @@ namespace ProjectPBOSewaAlatCamping
                     return;
                 }
 
-                // Access properties directly from the AlatCamping object
                 textBoxnamaup.Text = alat.Nama ?? "";
                 textBoxhargaUp.Text = alat.Harga.ToString();
                 textBoxStock.Text = alat.stock > 0 ? alat.stock.ToString() : "0";
@@ -132,11 +225,29 @@ namespace ProjectPBOSewaAlatCamping
                     return;
                 }
 
-                if (!decimal.TryParse(textBoxhargaUp.Text, out decimal hargaBaru) || hargaBaru <= 0)
+                
+                if (!decimal.TryParse(textBoxhargaUp.Text, out decimal perubahanHarga))
                 {
-                    MessageBox.Show("Harga harus berupa angka positif!", "Kesalahan", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("Harga harus berupa angka!", "Kesalahan", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
+
+                
+                AlatCamping? alatLama = dbAlat.AmbilAlatById(_currentId);
+                if (alatLama == null)
+                {
+                    MessageBox.Show("Data alat tidak ditemukan!", "Kesalahan", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                decimal hargaFinal = alatLama.Harga + perubahanHarga;
+
+                if (hargaFinal <= 0)
+                {
+                    MessageBox.Show("Harga akhir tidak boleh kurang dari atau sama dengan 0!", "Kesalahan", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
                 if (!int.TryParse(textBoxStock.Text, out int stock))
         {
             MessageBox.Show("Stok harus berupa bilangan bulat!", "Kesalahan", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -146,9 +257,9 @@ namespace ProjectPBOSewaAlatCamping
                 string namaBaru = textBoxnamaup.Text;
                 byte[]? fotoBytes = File.Exists(imagePath) ? File.ReadAllBytes(imagePath) : fotobyteLama ?? Array.Empty<byte>();
 
-                Console.WriteLine($"Mengirim data update: ID={_currentId}, Nama={namaBaru}, Harga={hargaBaru}, Stok={stock}, Foto={(fotoBytes.Length > 0 ? "Ada Foto" : "Foto Kosong")}");
+                Console.WriteLine($"Mengirim data update: ID={_currentId}, Nama={namaBaru}, Harga={hargaFinal}, Stok={stock}, Foto={(fotoBytes.Length > 0 ? "Ada Foto" : "Foto Kosong")}");
 
-                bool berhasil = dbAlat.PerbaruiAlat(_currentId, namaBaru, hargaBaru, stock, fotoBytes);
+                bool berhasil = dbAlat.PerbaruiAlat(_currentId, namaBaru, hargaFinal, stock, fotoBytes);
 
                 if (berhasil)
                 {

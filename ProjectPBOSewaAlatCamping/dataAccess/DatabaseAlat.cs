@@ -123,6 +123,29 @@ namespace ProjectPBOSewaAlatCamping.dataAccess
             cmd.ExecuteNonQuery();
         }
 
+        public bool CekNamaAlatSudahAda(string namaAlat)
+        {
+            using var conn = new NpgsqlConnection(connectionString);
+            conn.Open();
+
+            using var cmd = new NpgsqlCommand("SELECT COUNT(*) FROM alat WHERE LOWER(nama) = LOWER(@nama)", conn);
+            cmd.Parameters.AddWithValue("nama", namaAlat);
+
+            long count = (long)cmd.ExecuteScalar();
+            return count > 0;
+        }
+
+        public bool HapusAlatByNama(string nama)
+        {
+            using var conn = new NpgsqlConnection(connectionString);
+            conn.Open();
+
+            using var cmd = new NpgsqlCommand("DELETE FROM alat WHERE LOWER(nama) = LOWER(@nama)", conn);
+            cmd.Parameters.AddWithValue("nama", nama);
+
+            int rowsAffected = cmd.ExecuteNonQuery();
+            return rowsAffected > 0;
+        }
 
         public int AmbilStokAlat(int idAlat)
         {

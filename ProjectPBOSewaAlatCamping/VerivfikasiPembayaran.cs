@@ -85,7 +85,7 @@ namespace ProjectPBOSewaAlatCamping
 
             if (dataGridView1.Columns.Contains("BuktiPembayaran"))
             {
-                dataGridView1.Columns["BuktiPembayaran"].Visible = false; // Jangan tampilkan kolom gambar byte[]
+                dataGridView1.Columns["BuktiPembayaran"].Visible = false; 
             }
             if (dataGridView1.Columns.Contains("BuktiPembayaran"))
                 dataGridView1.Columns["BuktiPembayaran"].Visible = false;
@@ -121,7 +121,7 @@ namespace ProjectPBOSewaAlatCamping
                 LoadData();
                 MessageBox.Show("Transaksi disetujui.");
 
-                // Tampilkan struk
+                
                 FormStruk struk = new FormStruk(idTransaksi);
                 struk.ShowDialog();
             }

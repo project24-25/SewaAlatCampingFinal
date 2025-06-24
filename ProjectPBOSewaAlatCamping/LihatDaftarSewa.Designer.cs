@@ -46,6 +46,7 @@
             pictureBox1.SizeMode = PictureBoxSizeMode.StretchImage;
             pictureBox1.TabIndex = 0;
             pictureBox1.TabStop = false;
+            pictureBox1.Click += pictureBox1_Click;
             // 
             // dataGridViewLihatAlat
             // 
@@ -85,6 +86,7 @@
             button3.Size = new Size(86, 27);
             button3.TabIndex = 4;
             button3.UseVisualStyleBackColor = true;
+            button3.Click += button3_Click;
             // 
             // LihatDaftarSewa
             // 

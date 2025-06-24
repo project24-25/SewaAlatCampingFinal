@@ -40,14 +40,27 @@ namespace ProjectPBOSewaAlatCamping
         }
         private void button2_Click(object sender, EventArgs e)
         {
-            
+
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
             Berandaadmin berandaAdmin = new Berandaadmin();
             berandaAdmin.ShowDialog();
-            Close();
+            this.Close();
+        }
+
+        private void pictureBox1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            Form1 form = new Form1();
+            form.ShowDialog();
+            this.Close();
+
         }
     }
 }

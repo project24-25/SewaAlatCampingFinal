@@ -41,6 +41,7 @@
             buttonTambahAlat = new Button();
             flowLayoutPanel2 = new FlowLayoutPanel();
             buttonVerifikasiPembayaran = new Button();
+            buttonLihattransaksi = new Button();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             SuspendLayout();
             // 
@@ -158,14 +159,27 @@
             // 
             // buttonVerifikasiPembayaran
             // 
-            buttonVerifikasiPembayaran.BackColor = Color.Transparent;
-            buttonVerifikasiPembayaran.Image = (Image)resources.GetObject("buttonVerifikasiPembayaran.Image");
-            buttonVerifikasiPembayaran.Location = new Point(771, 159);
+            buttonVerifikasiPembayaran.BackColor = Color.MediumPurple;
+            buttonVerifikasiPembayaran.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            buttonVerifikasiPembayaran.Location = new Point(420, 159);
             buttonVerifikasiPembayaran.Name = "buttonVerifikasiPembayaran";
             buttonVerifikasiPembayaran.Size = new Size(113, 27);
             buttonVerifikasiPembayaran.TabIndex = 21;
+            buttonVerifikasiPembayaran.Text = "Verifikasi";
             buttonVerifikasiPembayaran.UseVisualStyleBackColor = false;
             buttonVerifikasiPembayaran.Click += buttonVerifikasiPembayaran_Click_1;
+            // 
+            // buttonLihattransaksi
+            // 
+            buttonLihattransaksi.BackColor = Color.MediumPurple;
+            buttonLihattransaksi.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            buttonLihattransaksi.Location = new Point(277, 158);
+            buttonLihattransaksi.Name = "buttonLihattransaksi";
+            buttonLihattransaksi.Size = new Size(137, 27);
+            buttonLihattransaksi.TabIndex = 22;
+            buttonLihattransaksi.Text = "LihatTransaksi";
+            buttonLihattransaksi.UseVisualStyleBackColor = false;
+            buttonLihattransaksi.Click += buttonLihattransaksi_Click;
             // 
             // Berandaadmin
             // 
@@ -173,6 +187,7 @@
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1443, 819);
             Controls.Add(buttonVerifikasiPembayaran);
+            Controls.Add(buttonLihattransaksi);
             Controls.Add(button5);
             Controls.Add(flowLayoutPanel2);
             Controls.Add(buttonHapusProduk);
@@ -207,5 +222,6 @@
         private PictureBox pictureBox16;
         private FlowLayoutPanel flowLayoutPanel2;
         private Button buttonVerifikasiPembayaran;
+        private Button buttonLihattransaksi;
     }
 }

@@ -8,10 +8,15 @@ using System.Data;
 using System.Drawing;
 using System.Globalization;
 using System.Linq;
+using System.Net;
+using System.Net.Mail;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Net.Mail;
+using System.Net;
+
 
 namespace ProjectPBOSewaAlatCamping
 {
@@ -22,6 +27,9 @@ namespace ProjectPBOSewaAlatCamping
         private ListBox listBoxTransaksi;
         private FlowLayoutPanel flowLayoutPanelUtama;
         private TextBox textBoxNama;
+        private TextBox textBoxEmail;
+        private readonly string namaLogin;
+        private readonly string emailLogin;
 
         private List<DetailTransaksi> transaksiList = new List<DetailTransaksi>();
         private TransaksiDAO transaksiDAO = new TransaksiDAO();
@@ -29,12 +37,16 @@ namespace ProjectPBOSewaAlatCamping
 
 
 
-        public BerandaPelanggan()
+        public BerandaPelanggan(string nama, string email)
         {
             InitializeComponent();
+            namaLogin = nama;
+            emailLogin = email;
             InitializeUIComponents();
             LoadEquipment();
-            this.Resize += (s, e) => ResizeLayout();
+            this.Resize += (s, e) => 
+            ResizeLayout();
+            CekTransaksiBerakhirHariIni();
 
         }
         private void InitializeUIComponents()
@@ -56,7 +68,6 @@ namespace ProjectPBOSewaAlatCamping
                 Location = new Point(30, 20)
             };
 
-
             Label labelNama = new Label
             {
                 Text = "Nama Pelanggan:",
@@ -68,8 +79,30 @@ namespace ProjectPBOSewaAlatCamping
             textBoxNama = new TextBox
             {
                 Name = "textBoxNama",
-                Location = new Point(180, 68),
-                Width = 300
+                Location = new Point(210, 68),
+                Width = 300,
+                Text = namaLogin,
+                ReadOnly = true,
+                Enabled = false
+            };
+
+            Label labelEmail = new Label
+            {
+                Text = "Email Pelanggan:",
+                Location = new Point(30, 100),
+                AutoSize = true,
+                Font = new Font("Arial", 12, FontStyle.Bold)
+            };
+
+            textBoxEmail = new TextBox
+            {
+                Name = "textBoxEmail",
+                Location = new Point(210, 98),
+                Width = 300,
+                Text = emailLogin,
+                ReadOnly = true,
+                Enabled = false
+
             };
 
 
@@ -146,9 +179,26 @@ namespace ProjectPBOSewaAlatCamping
             };
             buttonLogout.Click += (s, e) => Application.Exit();
 
+            Button btnRiwayat = new()
+            {
+                Name = "buttonRiwayat",
+                Text = "Lihat Riwayat",
+                Location = new Point(20, 625),
+                BackColor = Color.LightSteelBlue,
+                Width = 200,
+                Visible = false
+            };
+            btnRiwayat.Click += (s, e) =>
+            {
+                var riwayatForm = new RiwayatTransaksiPelanggan(textBoxNama.Text.Trim(), textBoxEmail.Text.Trim());
+                riwayatForm.ShowDialog();
+            };
+
             this.Controls.Add(labelJudul);
             this.Controls.Add(labelNama);
             this.Controls.Add(textBoxNama);
+            this.Controls.Add(labelEmail);
+            this.Controls.Add(textBoxEmail);
             this.Controls.Add(flowLayoutPanelUtama);
             this.Controls.Add(listBoxTransaksi);
             this.Controls.Add(labelTotal);
@@ -156,19 +206,50 @@ namespace ProjectPBOSewaAlatCamping
             this.Controls.Add(buttonRefresh);
             this.Controls.Add(buttonHapus);
             this.Controls.Add(buttonLogout);
+            this.Controls.Add(btnRiwayat);
 
 
 
 
-            ResizeLayout(); // Untuk atur ukuran & posisi flowLayout dan panelTransaksi
+
+            ResizeLayout();
+            CekDanTampilkanRiwayat(null, null);
         }
-        
+
+        private void CekDanTampilkanRiwayat(object sender, EventArgs e)
+        {
+            Button btnRiwayat = this.Controls["buttonRiwayat"] as Button;
+            string nama = textBoxNama.Text.Trim();
+            string email = textBoxEmail.Text.Trim();
+
+            if (string.IsNullOrWhiteSpace(nama) || string.IsNullOrWhiteSpace(email))
+            {
+                btnRiwayat.Visible = false;
+                return;
+            }
+
+            bool adaRiwayat = CekAdaRiwayatTransaksi(nama, email);
+
+            btnRiwayat.Visible = true;
+            btnRiwayat.Enabled = adaRiwayat;
+            btnRiwayat.Text = adaRiwayat ? "Lihat Riwayat Transaksi" : "Belum Ada Riwayat";
+            btnRiwayat.BackColor = adaRiwayat ? Color.LightSteelBlue : Color.LightGray;
+        }
+
+        private bool CekAdaRiwayatTransaksi(string nama, string email)
+        {
+            var dt = transaksiDAO.AmbilTransaksiByNamaEmail(nama, email);
+            return dt != null && dt.Rows.Count > 0;
+        }
+
+
+
         private void ResizeLayout()
         {
             int margin = 30;
             int sidePanelWidth = 360;
             int height = this.ClientSize.Height;
-            int width = this.ClientSize.Width;// Lebar panel transaksi di sebelah kanan
+            int width = this.ClientSize.Width;
 
             flowLayoutPanelUtama.Location = new Point(margin, 120);
             flowLayoutPanelUtama.Size = new Size(width - sidePanelWidth - 3 * margin, height - 150);
@@ -182,11 +263,15 @@ namespace ProjectPBOSewaAlatCamping
             Control buttonRefresh = this.Controls["buttonRefresh"];
             Control buttonHapus = this.Controls["buttonHapus"];
             Control btnLogout = this.Controls["buttonLogout"];
+            Control btnRiwayat = this.Controls["buttonRiwayat"];
 
             buttonSelesai.Location = new Point(width - sidePanelWidth, height - 90);
             buttonRefresh.Location = new Point(width - sidePanelWidth + 110, height - 90);
             buttonHapus.Location = new Point(width - sidePanelWidth + 220, height - 90);
             btnLogout.Location = new Point(width - sidePanelWidth, height - 50);
+            btnRiwayat.Location = new Point(width - sidePanelWidth + 110, height - 50);
+    
+
         }
 
         private void LoadEquipment()
@@ -198,7 +283,7 @@ namespace ProjectPBOSewaAlatCamping
             {
                 var panel = new Panel
                 {
-                    Size = new Size(200, 300), // Ukuran panel disesuaikan dengan UI yang lebih luas
+                    Size = new Size(200, 300), 
                     BorderStyle = BorderStyle.FixedSingle,
                     BackColor = Color.WhiteSmoke,
                     Margin = new Padding(10)
@@ -248,7 +333,10 @@ namespace ProjectPBOSewaAlatCamping
                     Value = 1,
                     Location = new Point(10, 185),
                     Width = 60,
-                    Enabled = alat.stock > 0
+                    Enabled = alat.stock > 0,
+                    ReadOnly = true,
+                    Increment = 1,
+                    TextAlign = HorizontalAlignment.Center
                 };
 
                 var numericDurasi = new NumericUpDown
@@ -257,7 +345,10 @@ namespace ProjectPBOSewaAlatCamping
                     Maximum = 30,
                     Value = 1,
                     Location = new Point(10, 225),
-                    Width = 60
+                    Width = 60,
+                    ReadOnly = true, 
+                    Increment = 1,
+                    TextAlign = HorizontalAlignment.Center
                 };
 
                 var labelHari = new Label
@@ -296,7 +387,7 @@ namespace ProjectPBOSewaAlatCamping
                     }
                 };
 
-                // Tambahkan semua kontrol ke panel
+               
                 panel.Controls.Add(pictureBox);
                 panel.Controls.Add(labelNama);
                 panel.Controls.Add(labelHarga);
@@ -306,7 +397,7 @@ namespace ProjectPBOSewaAlatCamping
                 panel.Controls.Add(labelHari);
                 panel.Controls.Add(buttonSewa);
 
-                // Tambahkan panel ke flowLayoutPanel utama
+               
                 flowLayoutPanelUtama.Controls.Add(panel);
             }
         }
@@ -316,7 +407,7 @@ namespace ProjectPBOSewaAlatCamping
         private Image ConvertBytesToImage(byte[] imageBytes)
         {
             if (imageBytes == null || imageBytes.Length == 0)
-                return CreatePlaceholderImage(); // fallback jika tidak ada gambar
+                return CreatePlaceholderImage(); 
 
             using (var ms = new System.IO.MemoryStream(imageBytes))
             {
@@ -355,7 +446,7 @@ namespace ProjectPBOSewaAlatCamping
             {
                 transaksiList.Remove(existing);
                 existing.Jumlah += jumlah;
-                existing.DurasiSewa = durasi; // Perbarui durasi sewa
+                existing.DurasiSewa = durasi;
                 transaksiList.Add(existing);
             }
             else
@@ -366,7 +457,7 @@ namespace ProjectPBOSewaAlatCamping
                     NamaAlat = name,
                     HargaSatuan = price,
                     Jumlah = jumlah,
-                    DurasiSewa = durasi // Tambahkan durasi sewa
+                    DurasiSewa = durasi 
                 });
             }
             if (durasi > 7)
@@ -380,6 +471,7 @@ namespace ProjectPBOSewaAlatCamping
             dbAlat.PerbaruiStokAlat(id, -jumlah);
             LoadEquipment();
         }
+
 
 
 
@@ -443,12 +535,28 @@ namespace ProjectPBOSewaAlatCamping
             }
 
             string namaPelanggan = textBoxNama.Text.Trim();
+            string emailPelanggan = textBoxEmail.Text.Trim();
 
             if (string.IsNullOrEmpty(namaPelanggan) || namaPelanggan.Length < 3)
             {
                 MessageBox.Show("Silakan isi nama pelanggan minimal 3 karakter!", "Peringatan", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
+
+            if (string.IsNullOrEmpty(emailPelanggan) || !emailPelanggan.Contains("@"))
+            {
+                MessageBox.Show("Silakan isi email pelanggan yang valid!", "Peringatan", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            var userDAO = new DataAccess(); 
+            bool userValid = userDAO.CekUserTerdaftar(namaPelanggan, emailPelanggan);
+
+            if (!userValid)
+            {
+                MessageBox.Show("Nama dan email tidak ditemukan dalam data pengguna yang terdaftar!", "Peringatan", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
 
             var formPembayaran = new FormMetodePembayaran(totalHarga, namaPelanggan, transaksiList);
             var result = formPembayaran.ShowDialog();
@@ -463,12 +571,23 @@ namespace ProjectPBOSewaAlatCamping
                     MetodePembayaran = formPembayaran.InfoPembayaran.Metode,
                     BuktiPembayaran = formPembayaran.InfoPembayaran.BuktiTransfer,
                     Status = "Menunggu Konfirmasi",
-                    DetailItems = transaksiList
+                    DetailItems = transaksiList,
+                    TanggalAkhirSewa = DateTime.Now.AddDays(transaksiList.Max(t => t.DurasiSewa)) 
                 };
 
                 bool simpan = transaksiDAO.SimpanTransaksi(transaksi);
                 if (simpan)
                 {
+                    DateTime tanggalTerakhirSewa = DateTime.Now.AddDays(transaksiList.Max(t => t.DurasiSewa));
+
+                   
+                    MessageBox.Show(
+                        $"Halo {namaPelanggan},\nMasa sewa Anda akan berakhir pada:\n{tanggalTerakhirSewa:dddd, dd MMMM yyyy}.",
+                        "Notifikasi Masa Sewa",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information
+                    );
+
                     MessageBox.Show("Transaksi berhasil disimpan. Menunggu verifikasi admin.", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                     transaksiList.Clear();
@@ -476,17 +595,50 @@ namespace ProjectPBOSewaAlatCamping
                     UpdateTotalLabel();
                     totalHarga = 0;
                     labelTotal.Text = "Total: Rp 0";
-                    textBoxNama.Text = "";
 
-                    LoadEquipment();
+                    
+
+                    LoadEquipment(); 
                 }
                 else
                 {
                     MessageBox.Show("Gagal menyimpan transaksi!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
+
+                if (CekAdaRiwayatTransaksi(namaPelanggan, emailPelanggan))
+                {
+                    Control btnRiwayat = this.Controls["buttonRiwayat"];
+                    btnRiwayat.Visible = true;
+                }
+
+                
+            }
+
+
+        }
+        private void CekTransaksiBerakhirHariIni()
+        {
+            var dt = transaksiDAO.AmbilTransaksiByNamaEmail(namaLogin, emailLogin);
+            if (dt == null || dt.Rows.Count == 0) return;
+
+            foreach (DataRow row in dt.Rows)
+            {
+                if (dt.Columns.Contains("Tanggal Akhir Sewa") &&
+                    DateTime.TryParse(row["Tanggal Akhir Sewa"]?.ToString(), out DateTime tanggalAkhir))
+                {
+                    if (tanggalAkhir.Date == DateTime.Today)
+                    {
+                        MessageBox.Show(
+                            $"Hai {namaLogin},\nSalah satu sewa kamu akan *berakhir hari ini* ({tanggalAkhir:dd MMMM yyyy}).\nSegera kembalikan alat !!!.",
+                            "⚠️ Pengembalian Hari Ini",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Warning
+                        );
+                        break; 
+                    }
+                }
             }
         }
 
-        
     }
 }

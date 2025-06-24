@@ -15,20 +15,22 @@ namespace ProjectPBOSewaAlatCamping.Models
         public string MetodePembayaran { get; set; }
         public string Status { get; set; } = "Menunggu Konfirmasi";
         public byte[] BuktiPembayaran { get; set; }
+        public DateTime TanggalAkhirSewa { get; set; }
         public List<DetailTransaksi> DetailItems { get; set; } = new List<DetailTransaksi>();
     }
 }
 
-    public class DetailTransaksi
-    {
+public class DetailTransaksi
+{
     public int Id { get; set; }
     public string NamaAlat { get; set; }
     public int TransaksiId { get; set; }
     public int AlatId { get; set; }
     public int Jumlah { get; set; }
     public decimal HargaSatuan { get; set; }
-    public int DurasiSewa { get; set; } // dalam hari
+    public int DurasiSewa { get; set; }
 }
+
 public class PembayaranInfo
 {
     public string Metode { get; set; }

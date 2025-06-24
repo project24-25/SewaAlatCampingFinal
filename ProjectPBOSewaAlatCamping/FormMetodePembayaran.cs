@@ -16,9 +16,8 @@ namespace ProjectPBOSewaAlatCamping
     public partial class FormMetodePembayaran : Form
     {
         private PictureBox pictureQR;
-        private Button buttonCetak;
         private Button buttonKonfirmasiBayar;
-        private PrintDocument printDoc;
+       
 
         private decimal total;
         private string namaPelanggan;
@@ -157,7 +156,7 @@ namespace ProjectPBOSewaAlatCamping
                         InfoPembayaran.BuktiTransfer = bukti;
                         InfoPembayaran.Berhasil = true;
 
-                        // Berhasil, baru tutup form
+                        
                         this.DialogResult = DialogResult.OK;
                         this.Close();
                     }

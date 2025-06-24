@@ -80,6 +80,7 @@
             buttonClose.Size = new Size(58, 19);
             buttonClose.TabIndex = 4;
             buttonClose.UseVisualStyleBackColor = true;
+            buttonClose.Click += buttonClose_Click;
             // 
             // FormHapusAlat
             // 
